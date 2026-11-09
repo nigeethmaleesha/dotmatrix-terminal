@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DOTMATRIX — Screen Recorder & Stitch Studio",
-  description: "Create and screen-record cinematic green matrix stitch and pencil animations, with automatic video download.",
+  title: "DOTMATRIX — Portrait Recording & Stitch Studio",
+  description: "Create and record 1080×1920 portrait videos with cinematic matrix-stitch, pencil, and original-image animations.",
   icons: { icon: "/favicon.svg" },
 };
 

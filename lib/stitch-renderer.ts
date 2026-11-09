@@ -21,8 +21,15 @@ export interface RasterPortrait {
 }
 
 // Landscape canvas matching the user's screen-recorded reference (16:9).
-export const SCENE_WIDTH = 1152;
-export const SCENE_HEIGHT = 648;
+export type CanvasFormat = "landscape" | "portrait";
+export interface SceneConfig { width: number; height: number; scale: number; format: CanvasFormat }
+export const SCENES: Record<CanvasFormat, SceneConfig> = {
+  landscape: { format: "landscape", width: 1152, height: 648, scale: 2 },
+  // 720 × 1280 logical pixels at 1.5x -> native 1080 × 1920 recording.
+  portrait: { format: "portrait", width: 720, height: 1280, scale: 1.5 },
+};
+export const SCENE_WIDTH = SCENES.landscape.width;
+export const SCENE_HEIGHT = SCENES.landscape.height;
 export const SCENE_BACKGROUND = "#080e0a";
 const GREEN: [number, number, number] = [190, 255, 142];
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
@@ -42,10 +49,11 @@ function titleFont(size: number): string {
   return `750 ${size}px system-ui, "Noto Sans Sinhala", "Iskoola Pota", sans-serif`;
 }
 
-function fittedTitle(ctx: CanvasRenderingContext2D, name: string): { lines: string[]; size: number } {
-  for (let size = 82; size >= 30; size -= 2) {
+function fittedTitle(ctx: CanvasRenderingContext2D, name: string, scene: SceneConfig): { lines: string[]; size: number } {
+  const available = scene.format === "portrait" ? scene.width - 76 : scene.width - 160;
+  for (let size = (scene.format === "portrait" ? 70 : 82); size >= 30; size -= 2) {
     ctx.font = titleFont(size);
-    if (ctx.measureText(name).width <= SCENE_WIDTH - 160) return { lines: [name], size };
+    if (ctx.measureText(name).width <= available) return { lines: [name], size };
   }
   const words = name.trim().split(/\s+/).filter(Boolean);
   let lines: string[];
@@ -69,25 +77,41 @@ function fittedTitle(ctx: CanvasRenderingContext2D, name: string): { lines: stri
   }
   for (let size = 64; size >= 25; size -= 2) {
     ctx.font = titleFont(size);
-    if (lines.every(line => ctx.measureText(line).width <= SCENE_WIDTH - 160)) return { lines, size };
+    if (lines.every(line => ctx.measureText(line).width <= available)) return { lines, size };
   }
   return { lines, size: 25 };
 }
 
-export function paintStage(ctx: CanvasRenderingContext2D): void {
+export function paintStage(ctx: CanvasRenderingContext2D, scene: SceneConfig = SCENES.landscape): void {
   ctx.fillStyle = SCENE_BACKGROUND;
-  ctx.fillRect(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
-  const glow = ctx.createRadialGradient(SCENE_WIDTH / 2, 330, 65, SCENE_WIDTH / 2, 330, 670);
-  glow.addColorStop(0, "rgba(24,50,28,.11)");
+  ctx.fillRect(0, 0, scene.width, scene.height);
+  const centerY = scene.format === "portrait" ? 690 : 330;
+  const glow = ctx.createRadialGradient(scene.width / 2, centerY, 65, scene.width / 2, centerY, scene.format === "portrait" ? 760 : 670);
+  glow.addColorStop(0, "rgba(24,50,28,.13)");
   glow.addColorStop(1, "rgba(8,14,10,0)");
   ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
+  ctx.fillRect(0, 0, scene.width, scene.height);
+  if (scene.format === "portrait") {
+    // Subtle atmospheric rule and corners; no desktop interface gets into the video.
+    ctx.strokeStyle = "rgba(178,255,142,.12)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(38, 135); ctx.lineTo(scene.width - 38, 135);
+    ctx.moveTo(38, scene.height - 100); ctx.lineTo(scene.width - 38, scene.height - 100);
+    ctx.stroke();
+    ctx.font = '500 15px "Courier New", monospace';
+    ctx.fillStyle = "rgba(190,255,160,.42)";
+    ctx.textAlign = "center";
+    ctx.fillText("DOTMATRIX   /   VISUAL STORY", scene.width / 2, scene.height - 63);
+  }
 }
 
-export function paintTitle(ctx: CanvasRenderingContext2D, name: string, visibleGraphemes: number, showCaret: boolean, ink: Ink): void {
+export function paintTitle(ctx: CanvasRenderingContext2D, name: string, visibleGraphemes: number, showCaret: boolean, ink: Ink, scene: SceneConfig = SCENES.landscape): void {
   if (!name) return;
-  const { lines, size } = fittedTitle(ctx, name);
-  const positions = lines.length === 1 ? [110] : [78, 144];
+  const { lines, size } = fittedTitle(ctx, name, scene);
+  const positions = scene.format === "portrait"
+    ? (lines.length === 1 ? [265] : [214, 290])
+    : (lines.length === 1 ? [110] : [78, 144]);
   let remaining = visibleGraphemes;
   let caret: {x: number; y: number} | null = null;
   ctx.save();
@@ -99,7 +123,7 @@ export function paintTitle(ctx: CanvasRenderingContext2D, name: string, visibleG
   ctx.fillStyle = ink === "phosphor" ? "#c6ff95" : "#f0f2ed";
   for (let i = 0; i < lines.length; i++) {
     const chars = splitGraphemes(lines[i]);
-    const left = (SCENE_WIDTH - ctx.measureText(lines[i]).width) / 2;
+    const left = (scene.width - ctx.measureText(lines[i]).width) / 2;
     const shown = Math.max(0, Math.min(chars.length, remaining));
     const part = chars.slice(0, shown).join("");
     ctx.fillText(part, left, positions[i]);
@@ -113,15 +137,16 @@ export function paintTitle(ctx: CanvasRenderingContext2D, name: string, visibleG
   }
 }
 
-export function portraitBounds(image: HTMLImageElement, hasTitle: boolean) {
-  const maxWidth = SCENE_WIDTH - 64;
-  const maxHeight = hasTitle ? 422 : 570;
+export function portraitBounds(image: HTMLImageElement, hasTitle: boolean, scene: SceneConfig = SCENES.landscape) {
+  const tall = scene.format === "portrait";
+  const maxWidth = tall ? scene.width - 48 : scene.width - 64;
+  const maxHeight = tall ? (hasTitle ? 775 : 1070) : (hasTitle ? 422 : 570);
   const ratio = Math.min(maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
   const width = Math.max(2, Math.round(image.naturalWidth * ratio));
   const height = Math.max(2, Math.round(image.naturalHeight * ratio));
-  const x = Math.round((SCENE_WIDTH - width) / 2);
-  const yMin = hasTitle ? 192 : 32;
-  const areaHeight = hasTitle ? 438 : 584;
+  const x = Math.round((scene.width - width) / 2);
+  const yMin = tall ? (hasTitle ? 373 : 105) : (hasTitle ? 192 : 32);
+  const areaHeight = tall ? (hasTitle ? 803 : 1090) : (hasTitle ? 438 : 584);
   const y = Math.round(yMin + (areaHeight - height) / 2);
   return {x, y, width, height};
 }
@@ -242,8 +267,8 @@ function matrixDots(ctx: CanvasRenderingContext2D, width: number, height: number
   ctx.putImageData(output,0,0);
 }
 
-export function buildRasterPortrait(image: HTMLImageElement, title: string, options: DrawOptions, mode: PortraitRenderMode): RasterPortrait {
-  const bounds = portraitBounds(image, Boolean(title));
+export function buildRasterPortrait(image: HTMLImageElement, title: string, options: DrawOptions, mode: PortraitRenderMode, scene: SceneConfig = SCENES.landscape): RasterPortrait {
+  const bounds = portraitBounds(image, Boolean(title), scene);
   const {width,height} = bounds;
   const {canvas,ctx} = makeCanvas(width,height);
   ctx.imageSmoothingEnabled = true;

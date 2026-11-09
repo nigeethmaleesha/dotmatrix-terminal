@@ -216,3 +216,222 @@ input[type="range"]::-moz-range-thumb { width: 11px; height: 11px; border-radius
   .focus-controls button { padding: 7px 8px; font-size: 10px; }
   .toolbar-buttons .toolbar-record { flex: 1; justify-content: center; }
 }
+
+/* v10: A true 9:16 composition — portrait artwork fills the vertical frame. */
+.format-toggle {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  border: 1px solid #27432d; border-radius: 6px; padding: 4px;
+  background: #071109;
+}
+.format-toggle button {
+  min-width: 0; padding: 11px 5px; background: transparent; color: #809c83;
+  border: 1px solid transparent; border-radius: 4px; font: 700 10px var(--mono);
+  cursor: pointer;
+}
+.format-toggle button.active {
+  background: #1c3521; color: #c9ffa6; border-color: #476c43;
+}
+.format-toggle button:disabled { cursor: not-allowed; opacity: .48; }
+.format-toggle button:not(:disabled):hover { color: #c8ffa7; }
+
+.portrait-format .stage-shell { background: #050a06; }
+.portrait-format .canvas-area {
+  width: min(100%, 420px); aspect-ratio: 9 / 16;
+  margin: 0 auto; box-shadow: 0 0 65px rgba(0,0,0,.32);
+}
+.portrait-format .drawing-canvas { aspect-ratio: 9 / 16; }
+.full-screen-canvas.portrait-format .stage-shell { background: #080e0a; }
+.full-screen-canvas.portrait-format .canvas-area {
+  width: min(100vw, calc(100dvh * 9 / 16));
+  height: auto; max-height: 100dvh; aspect-ratio: 9 / 16;
+  margin: 0;
+}
+.full-screen-canvas.portrait-format .drawing-canvas { width: 100%; height: 100%; }
+
+.vertical-record-panel {
+  padding: 13px; margin-top: 12px; border: 1px solid #3f673d;
+  background: linear-gradient(130deg,#13251a 0%,#0c1710 95%);
+  border-radius: 6px;
+}
+.vertical-record-button {
+  width: 100%; min-height: 48px; border-radius: 4px;
+  border: 1px solid #8dd66e; background: #b9ff8a; color: #112414;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  font: 800 11px var(--mono); padding: 10px 12px; cursor: pointer;
+}
+.vertical-record-button:hover:not(:disabled) { background: #d0ffb2; }
+.vertical-record-button.is-recording { background: #351b1e; color: #ffb9b9; border-color: #ca666d; }
+.vertical-record-button:disabled { opacity: .6; cursor: not-allowed; }
+.vertical-record-panel .record-hint { margin: 10px 0 0; }
+.video-size { font: 700 9px var(--mono); opacity: .7; white-space: nowrap; }
+@media(max-width: 560px) {
+  .vertical-record-button { flex-wrap: wrap; }
+  .video-size { width: 100%; text-align: center; }
+  .portrait-format .canvas-area { width: min(100%, 360px); }
+  .full-screen-canvas.portrait-format .canvas-area {
+    width: min(100vw, calc(100dvh * 9 / 16));
+  }
+}
+
+/* v11 — 9:16 portrait setup studio (independent of the widescreen website).
+   Every dimension is relative to the portrait frame's WIDTH, which guarantees
+   a consistent design at both 360×640 and 1080×1920. */
+.intro-portrait-link, .open-portrait-studio, .workspace-record-cta {
+  color: #d7ffc8; background: #172a19; border: 1px solid #567d50;
+  border-radius: 6px; font: 750 12px var(--sans); display: inline-flex;
+  align-items: center; justify-content: center; gap: 11px; padding: 12px 17px;
+}
+.intro-portrait-link { margin-top: 19px; }
+.intro-portrait-link:hover:not(:disabled), .open-portrait-studio:hover:not(:disabled),
+.workspace-record-cta:hover:not(:disabled) { background: #234028; border-color: #a0d986; }
+.open-portrait-studio { width: 100%; margin-top: 12px; font-size: 11px; }
+.workspace-record-cta {
+  width: 100%; min-height: 43px; margin-bottom: 13px;
+  background: #1d3420; color: #dcffc9; font: 750 10px var(--mono);
+}
+
+.portrait-workspace-backdrop {
+  position: fixed; inset: 0; z-index: 12000; display: flex;
+  align-items: center; justify-content: center; overflow: hidden;
+  background: #040805;
+}
+.portrait-workspace-frame {
+  position: relative; width: min(100vw, 56.25dvh);
+  height: min(100dvh, 177.77778vw);
+  aspect-ratio: 9/16; flex: none; container-type: inline-size;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  color: #edf7e9; background: #071009;
+  border-inline: 1px solid #223725; overflow: hidden;
+  box-shadow: 0 0 90px rgba(0,0,0,.75);
+}
+.portrait-workspace-frame *, .portrait-workspace-frame *:before, .portrait-workspace-frame *:after { min-width: 0; }
+.portrait-workspace-header {
+  display: flex; align-items: center; gap: 2.1cqw;
+  padding: 3.8cqw 5.8cqw 3.2cqw;
+  border-bottom: 1px solid #23392a;
+}
+.portrait-workspace-brand {
+  display: flex; align-items: center; gap: 1.5cqw;
+  white-space: nowrap; font-weight: 900; letter-spacing: -.05em;
+  font-size: 3.1cqw;
+}
+.portrait-workspace-brand > span:last-child { color: #b9ff83; margin-left: -.95cqw; }
+.portrait-mini-mark { color: #b9ff83; font-size: 4.2cqw; line-height: 1; }
+.portrait-workspace-format {
+  margin-left: auto; color: #9bba91; white-space: nowrap;
+  font: 700 1.9cqw var(--mono); letter-spacing: .06em;
+}
+.portrait-close {
+  display: grid; place-items: center; flex: 0 0 auto;
+  width: 6cqw; height: 6cqw; border: 1px solid #38523b;
+  background: #122116; color: #d8efd1; border-radius: 1cqw;
+}
+.portrait-close svg { width: 3.5cqw; height: 3.5cqw; }
+.portrait-workspace-body {
+  min-height: 0; overflow: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: #37523a #0d1a10;
+  padding: 4.1cqw 6.1cqw 1cqw;
+  background: radial-gradient(ellipse 85% 60% at 95% 5%, rgba(41,87,35,.08), transparent);
+}
+.portrait-workspace-eyebrow {
+  margin: 0 0 2cqw; color: #a3e884;
+  font: 800 1.75cqw var(--mono); letter-spacing: .06em;
+}
+.portrait-workspace-body h2 {
+  margin: 0; font-size: 6.1cqw; letter-spacing: -.04em;
+  font-weight: 800; line-height: 1.1; white-space: normal;
+  overflow-wrap: anywhere;
+}
+.portrait-workspace-body h2 em { color: #b9ff83; font-style: normal; }
+.portrait-workspace-subtitle {
+  color: #9caf9c; margin: 1.4cqw 0 4.5cqw;
+  font-size: 2.3cqw; line-height: 1.4;
+}
+.portrait-workspace-field { margin-bottom: 3.4cqw; }
+.portrait-workspace-field label,
+.portrait-field-row label {
+  display: block; margin-bottom: 1.45cqw; color: #c0d3b7;
+  font: 800 1.95cqw var(--mono); letter-spacing: .07em;
+}
+.portrait-input-wrap {
+  display: flex; align-items: center; gap: 1.5cqw;
+  border: 1px solid #527b49; border-radius: 1.2cqw;
+  background: #0b190e; height: 9.3cqw; padding: 0 2.3cqw;
+}
+.portrait-input-wrap span { flex: none; font-size: 4.2cqw; font-weight: 800; color: #b9ff83; }
+.portrait-input-wrap input {
+  min-width: 0; width: 100%; height: 100%; border: 0; outline: 0;
+  background: transparent; color: #e8ffd9; font: 600 2.75cqw var(--sans);
+}
+.portrait-input-wrap input::placeholder { color: #709172; }
+.portrait-upload {
+  width: 100%; height: 29cqw; padding: 2cqw;
+  display: flex; align-items: center; justify-content: center; gap: 2.6cqw;
+  background: #0c1b10; border: 1px dashed #4b704c;
+  border-radius: 1.5cqw; color: #e6f4e1; text-align: center;
+}
+.portrait-upload:hover,.portrait-upload.dragging { border-color: #adf181; background: #152719; }
+.portrait-upload > svg { width: 5cqw; height: 5cqw; flex: none; color: #b9ff83; }
+.portrait-upload strong { font-size: 2.65cqw; font-weight: 700; }
+.portrait-upload > span { color: #91ac92; font-size: 2.05cqw; }
+.portrait-upload:has(img) { justify-content: flex-start; text-align: left; }
+.portrait-upload img {
+  height: 100%; max-width: 30%; width: auto; flex: none;
+  aspect-ratio: 4/5; object-fit: contain; background: #070e08;
+  border-radius: .7cqw;
+}
+.portrait-upload-details { display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: 1.5cqw; min-width: 0; }
+.portrait-upload-details strong {
+  font: 700 2.4cqw var(--mono); color: #e7f9df; width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.portrait-upload-details small { color: #9ac58c; font-size: 2.1cqw; }
+.portrait-style-toggle {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1.1cqw;
+  border: 1px solid #305137; border-radius: 1.2cqw;
+  background: #08170c; padding: .8cqw;
+}
+.portrait-style-toggle button {
+  width: 100%; padding: 2.1cqw .5cqw; border: 1px solid transparent;
+  border-radius: .8cqw; background: transparent; color: #98b398;
+  font: 750 1.95cqw var(--sans); white-space: normal; line-height: 1.2;
+}
+.portrait-style-toggle button.active { background: #213b25; border-color: #588253; color: #ecffe0; }
+.portrait-workspace-settings {
+  display: grid; grid-template-columns: 1fr 1fr;
+  column-gap: 4.2cqw; margin-top: 1.3cqw;
+}
+.portrait-field-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1cqw; }
+.portrait-field-row strong { color: #b9ff83; font: 800 2cqw var(--mono); white-space: nowrap; }
+.portrait-workspace-settings .portrait-workspace-field { margin-bottom: 1cqw; }
+.portrait-slider-field input[type="range"] { width: 100%; margin: 2.4cqw 0 1.6cqw; height: .7cqw; }
+.portrait-slider-field input[type="range"]::-webkit-slider-thumb { width: 2.6cqw; height: 2.6cqw; }
+.portrait-workspace-error {
+  border: 1px solid #8a4040; color: #ffd5d5; background: #381c1d;
+  border-radius: .9cqw; padding: 1.8cqw; font: 600 2.2cqw var(--sans);
+  overflow-wrap: anywhere;
+}
+.portrait-workspace-footer {
+  display: flex; flex-direction: column; gap: 1.5cqw;
+  padding: 2.4cqw 6.1cqw 3.2cqw; background: #09130b;
+  border-top: 1px solid #253b29;
+}
+.portrait-workspace-footer button {
+  display: flex; align-items: center; justify-content: center; gap: 1.8cqw;
+  width: 100%; min-height: 9cqw; border-radius: 1cqw;
+  font: 850 2.25cqw var(--mono); letter-spacing: .01em;
+}
+.portrait-workspace-footer button svg { width: 3.3cqw; height: 3.3cqw; flex: none; }
+.portrait-start { background: #baff84; border: 1px solid #baff84; color: #102010; }
+.portrait-start:hover:not(:disabled) { background: #d4ffb8; }
+.portrait-workflow-record { background: #172b1b; color: #d5f7c8; border: 1px solid #4b7650; }
+.portrait-workflow-record:hover:not(:disabled) { border-color: #aeef99; }
+.portrait-workflow-record.active { background: #371c20; border-color: #bd7979; color: #ffd6d6; }
+.portrait-workflow-record span { margin-left: auto; font: 650 1.75cqw var(--mono); opacity: .75; }
+.portrait-workspace-footer p {
+  margin: 0; text-align: center; color: #88a187;
+  font: 550 1.9cqw var(--sans); line-height: 1.5;
+}
+@media (max-aspect-ratio: 9/16) {
+  .portrait-workspace-frame { border-inline: none; }
+}
