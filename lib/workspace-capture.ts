@@ -181,26 +181,46 @@ export function paintWorkspaceCapture(canvas: HTMLCanvasElement, values: Workspa
   option(ctx, "Pencil", margin + optionW + gap, 1260, optionW, values.mode === "pencil");
   option(ctx, "Original", margin + (optionW + gap) * 2, 1260, optionW, values.mode === "original");
 
-  label(ctx, "DRAWING DETAIL", margin, 1450);
+  let detailY = 1450;
+  let detailSliderY = 1490;
+  let durationY = 1586;
+  let durationSliderY = 1626;
+  let buttonY = 1690;
+  let buttonTextY = 1760;
+
+  if (values.mode === "pencil") {
+    label(ctx, "04 / PENCIL INK", margin, 1392);
+    const inkW = (900 - gap) / 2;
+    option(ctx, "Graphite", margin, 1417, inkW, values.ink === "graphite");
+    option(ctx, "Phosphor", margin + inkW + gap, 1417, inkW, values.ink === "phosphor");
+    detailY = 1542;
+    detailSliderY = 1582;
+    durationY = 1672;
+    durationSliderY = 1712;
+    buttonY = 1768;
+    buttonTextY = 1838;
+  }
+
+  label(ctx, "DRAWING DETAIL", margin, detailY);
   ctx.font = `800 25px ${MONO}`;
   ctx.fillStyle = GREEN;
   ctx.textAlign = "right";
-  ctx.fillText(`${values.detail}%`, 990, 1450);
+  ctx.fillText(`${values.detail}%`, 990, detailY);
   ctx.textAlign = "left";
-  slider(ctx, values.detail, 35, 100, margin, 1490, 900);
+  slider(ctx, values.detail, 35, 100, margin, detailSliderY, 900);
 
-  label(ctx, "DRAWING DURATION", margin, 1586);
+  label(ctx, "DRAWING DURATION", margin, durationY);
   ctx.textAlign = "right";
   ctx.fillStyle = GREEN;
-  ctx.fillText(`${values.duration} sec`, 990, 1586);
+  ctx.fillText(`${values.duration} sec`, 990, durationY);
   ctx.textAlign = "left";
-  slider(ctx, values.duration, 5, 30, margin, 1626, 900);
+  slider(ctx, values.duration, 5, 30, margin, durationSliderY, 900);
 
-  roundRect(ctx, margin, 1690, 900, 110, 13, GREEN);
+  roundRect(ctx, margin, buttonY, 900, 110, 13, GREEN);
   ctx.fillStyle = "#12220e";
   ctx.font = `900 31px ${MONO}`;
   ctx.textAlign = "center";
-  ctx.fillText("▶  START DRAWING", 540, 1760);
+  ctx.fillText("▶  START DRAWING", 540, buttonTextY);
   ctx.textAlign = "left";
 
   ctx.font = `700 22px ${MONO}`;

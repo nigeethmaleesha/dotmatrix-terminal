@@ -397,6 +397,20 @@ input[type="range"]::-moz-range-thumb { width: 11px; height: 11px; border-radius
   font: 750 1.95cqw var(--sans); white-space: normal; line-height: 1.2;
 }
 .portrait-style-toggle button.active { background: #213b25; border-color: #588253; color: #ecffe0; }
+.portrait-ink-toggle {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.1cqw;
+  border: 1px solid #305137; border-radius: 1.2cqw;
+  background: #08170c; padding: .8cqw;
+}
+.portrait-ink-toggle button {
+  width: 100%; padding: 2.1cqw .8cqw; border: 1px solid transparent;
+  border-radius: .8cqw; background: transparent; color: #98b398;
+  font: 750 1.95cqw var(--sans); display: flex; align-items: center; justify-content: center; gap: 1.2cqw;
+}
+.portrait-ink-toggle button.active { background: #213b25; border-color: #588253; color: #ecffe0; }
+.portrait-workspace-note {
+  margin: 1.2cqw 0 0; color: #93ad91; font: 550 1.82cqw var(--sans); line-height: 1.4;
+}
 .portrait-workspace-settings {
   display: grid; grid-template-columns: 1fr 1fr;
   column-gap: 4.2cqw; margin-top: 1.3cqw;

@@ -193,29 +193,45 @@ function pencilSketch(ctx: CanvasRenderingContext2D, width: number, height: numb
   for (let p = 0, i = 0; p < lum.length; p++, i += 4) {
     lum[p] = d[i] * .2126 + d[i + 1] * .7152 + d[i + 2] * .0722;
   }
+
   const inverse = new Float32Array(lum.length);
   for (let i = 0; i < inverse.length; i++) inverse[i] = 255 - lum[i];
+
   const radius = Math.max(2, Math.round(8 - options.detail * .05));
   const blurredInverse = blur3x3(inverse, width, height, radius);
+  const localTone = blur3x3(lum, width, height, 1);
+  const broadTone = blur3x3(lum, width, height, Math.max(1, radius - 2));
   const [r,g,b] = inkRgb(options.ink);
+
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     const p = y * width + x;
     const pLeft = y * width + Math.max(0,x-1);
     const pRight = y * width + Math.min(width-1,x+1);
     const pTop = Math.max(0,y-1) * width + x;
     const pBottom = Math.min(height-1,y+1) * width + x;
-    const edge = Math.min(1, Math.hypot(lum[pRight]-lum[pLeft], lum[pBottom]-lum[pTop]) / 130);
-    const dodge = Math.min(255, lum[p] * 255 / Math.max(5, 255-blurredInverse[p]));
-    // Preserve midtones and fine facial features instead of overexposing the face.
-    let shade = clamp(((.58 * dodge + .42 * lum[p]) - edge * 42) / 255);
+
+    const gx = localTone[pRight] - localTone[pLeft];
+    const gy = localTone[pBottom] - localTone[pTop];
+    const edge = Math.min(1, Math.hypot(gx, gy) / 120);
+    const detail = Math.min(1, Math.abs(lum[p] - broadTone[p]) / 34);
+
+    const dodge = Math.min(255, (broadTone[p] * 255) / Math.max(10, 255 - blurredInverse[p]));
+    let shade = (0.48 * dodge + 0.32 * localTone[p] + 0.20 * lum[p]) / 255;
+    shade = Math.pow(clamp(shade), 0.92);
     shade = clamp((shade - .5) * options.contrast + .5);
-    if (options.invert) shade = 1-shade;
+    shade = clamp(shade - edge * 0.22 - detail * 0.10 + 0.03);
+    if (options.invert) shade = 1 - shade;
+
     const i = p * 4;
     if (options.ink === "phosphor") {
-      d[i] = r * shade; d[i+1] = g * shade; d[i+2] = b * shade;
+      d[i] = Math.round(r * shade);
+      d[i+1] = Math.round(g * shade);
+      d[i+2] = Math.round(b * shade);
     } else {
-      const v = shade * 255;
-      d[i] = v; d[i+1] = v; d[i+2] = v;
+      const v = Math.round(shade * 255);
+      d[i] = v;
+      d[i+1] = Math.round(v * 0.995);
+      d[i+2] = Math.round(v * 0.985);
     }
     d[i+3] = 255;
   }

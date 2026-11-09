@@ -196,6 +196,12 @@ export default function TerminalApp() {
     animationRef.current = null;
   }, []);
 
+  function chooseRenderMode(next: PortraitRenderMode) {
+    setRenderMode(next);
+    if (next === "matrix") setInk("phosphor");
+    else if (next === "pencil" && ink === "phosphor") setInk("graphite");
+  }
+
   function paintWorkspaceFrame() {
     if (!workflowCaptureActive.current || verticalCaptureActive.current) return;
     const canvas = recordingCanvas.current;
@@ -525,9 +531,9 @@ export default function TerminalApp() {
               <div className="field">
                 <label>OUTPUT MODE</label>
                 <div className="ink-choice" role="group" aria-label="Portrait rendering mode">
-                  <button type="button" className={renderMode === "matrix" ? "active" : ""} onClick={() => setRenderMode("matrix")}><span className="ink-dot green"/> MATRIX STITCH</button>
-                  <button type="button" className={renderMode === "pencil" ? "active" : ""} onClick={() => setRenderMode("pencil")}><span className="ink-dot white"/><Icon name="pencil" size={14}/> PENCIL</button>
-                  <button type="button" className={renderMode === "original" ? "active" : ""} onClick={() => setRenderMode("original")}><Icon name="image" size={14}/> ORIGINAL</button>
+                  <button type="button" className={renderMode === "matrix" ? "active" : ""} onClick={() => chooseRenderMode("matrix")}><span className="ink-dot green"/> MATRIX STITCH</button>
+                  <button type="button" className={renderMode === "pencil" ? "active" : ""} onClick={() => chooseRenderMode("pencil")}><span className="ink-dot white"/><Icon name="pencil" size={14}/> PENCIL</button>
+                  <button type="button" className={renderMode === "original" ? "active" : ""} onClick={() => chooseRenderMode("original")}><Icon name="image" size={14}/> ORIGINAL</button>
                 </div>
                 <span className="field-help">Matrix Stitch matches your video. Original preserves the uploaded photo.</span>
               </div>
@@ -641,11 +647,19 @@ export default function TerminalApp() {
             <div className="portrait-workspace-field">
               <label>03 / OUTPUT STYLE</label>
               <div className="portrait-style-toggle" role="group" aria-label="Portrait style">
-                <button type="button" className={renderMode === "matrix" ? "active" : ""} onClick={() => setRenderMode("matrix")}>Matrix Stitch</button>
-                <button type="button" className={renderMode === "pencil" ? "active" : ""} onClick={() => setRenderMode("pencil")}>Pencil</button>
-                <button type="button" className={renderMode === "original" ? "active" : ""} onClick={() => setRenderMode("original")}>Original</button>
+                <button type="button" className={renderMode === "matrix" ? "active" : ""} onClick={() => chooseRenderMode("matrix")}>Matrix Stitch</button>
+                <button type="button" className={renderMode === "pencil" ? "active" : ""} onClick={() => chooseRenderMode("pencil")}>Pencil</button>
+                <button type="button" className={renderMode === "original" ? "active" : ""} onClick={() => chooseRenderMode("original")}>Original</button>
               </div>
             </div>
+            {renderMode === "pencil" && <div className="portrait-workspace-field">
+              <label>04 / PENCIL INK</label>
+              <div className="portrait-ink-toggle" role="group" aria-label="Pencil ink">
+                <button type="button" className={ink === "graphite" ? "active" : ""} onClick={() => setInk("graphite")}><span className="ink-dot white"/> Graphite</button>
+                <button type="button" className={ink === "phosphor" ? "active" : ""} onClick={() => setInk("phosphor")}><span className="ink-dot green"/> Phosphor</button>
+              </div>
+              <p className="portrait-workspace-note">Graphite gives the most natural pencil look. Phosphor keeps the neon style.</p>
+            </div>}
             <div className="portrait-workspace-settings">
               <div className="portrait-workspace-field portrait-slider-field">
                 <div className="portrait-field-row"><label htmlFor="portrait-detail">DRAWING DETAIL</label><strong>{detail}%</strong></div>
